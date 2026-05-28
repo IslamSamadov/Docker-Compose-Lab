@@ -1,0 +1,24 @@
+name: Deploy to Render
+
+on:
+  workflow_run:
+    workflows: ["DevOps App CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Trigger Render deploy
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+
+      - name: Deployment summary
+        run: |
+          echo "### 🚀 CI Pipeline passed successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "Render has been triggered to build and deploy the application automatically." >> $GITHUB_STEP_SUMMARY
